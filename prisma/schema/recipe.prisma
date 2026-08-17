@@ -1,0 +1,35 @@
+model Recipe {
+  id           String   @id
+  title        String
+  instructions String
+  description  String?
+  thumb        String?
+  time         String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  ownerId String @map("owner_id")
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  categoryId String @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  areaId String @map("area_id")
+  area   Area   @relation(fields: [areaId], references: [id])
+
+  ingredients RecipeIngredient[]
+
+  @@map("recipes")
+}
+
+model RecipeIngredient {
+  recipeId     String @map("recipe_id")
+  ingredientId String @map("ingredient_id")
+  measure      String?
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@id([recipeId, ingredientId])
+  @@map("recipe_ingredients")
+}

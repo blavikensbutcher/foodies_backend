@@ -1,0 +1,9 @@
+model Testimonial {
+  id          String @id
+  testimonial String
+
+  ownerId String @map("owner_id")
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@map("testimonials")
+}

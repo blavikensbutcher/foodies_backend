@@ -1,0 +1,10 @@
+model Ingredient {
+  id   String  @id
+  name String
+  desc String?
+  img  String?
+
+  recipes RecipeIngredient[]
+
+  @@map("ingredients")
+}

@@ -1,0 +1,7 @@
+model Category {
+  id      String   @id
+  name    String   @unique
+  recipes Recipe[]
+
+  @@map("categories")
+}

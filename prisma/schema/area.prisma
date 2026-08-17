@@ -1,0 +1,7 @@
+model Area {
+  id      String   @id
+  name    String   @unique
+  recipes Recipe[]
+
+  @@map("areas")
+}
