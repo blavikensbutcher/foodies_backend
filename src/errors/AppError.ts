@@ -1,3 +1,5 @@
+import { ERROR_MESSAGES } from "./error.constants";
+
 export class AppError extends Error {
   readonly statusCode: number;
 
@@ -9,7 +11,7 @@ export class AppError extends Error {
 }
 
 export class NotFoundError extends AppError {
-  constructor(message = "Not found") {
+  constructor(message: string = ERROR_MESSAGES.NOT_FOUND) {
     super(404, message);
     this.name = "NotFoundError";
   }
