@@ -11,7 +11,7 @@ model Recipe {
   ownerId String @map("owner_id")
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
-  categoryId String @map("category_id")
+  categoryId String   @map("category_id")
   category   Category @relation(fields: [categoryId], references: [id])
 
   areaId String @map("area_id")
@@ -19,12 +19,14 @@ model Recipe {
 
   ingredients RecipeIngredient[]
 
+  favoredBy User[] @relation("UserFavorites")
+
   @@map("recipes")
 }
 
 model RecipeIngredient {
-  recipeId     String @map("recipe_id")
-  ingredientId String @map("ingredient_id")
+  recipeId     String  @map("recipe_id")
+  ingredientId String  @map("ingredient_id")
   measure      String?
 
   recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)

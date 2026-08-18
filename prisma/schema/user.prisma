@@ -9,6 +9,8 @@ model User {
   recipes      Recipe[]
   testimonials Testimonial[]
 
+  favorites Recipe[] @relation("UserFavorites")
+
   following User[] @relation("UserFollows")
   followers User[] @relation("UserFollows")
 
