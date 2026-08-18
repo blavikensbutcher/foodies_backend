@@ -18,3 +18,25 @@ export function findAll() {
     },
   });
 }
+
+export function findByUserId(userId: string) {
+  return prisma.testimonial.findMany({
+    where: {
+      ownerId: userId,
+    },
+    select: {
+      id: true,
+      testimonial: true,
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
+    },
+    orderBy: {
+      id: "desc",
+    },
+  });
+}
