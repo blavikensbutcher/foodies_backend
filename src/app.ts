@@ -11,6 +11,7 @@ import areaRouter from "./routes/area.routes";
 import ingredientRouter from "./routes/ingredient.routes";
 import testimonialRouter from "./routes/testimonial.routes";
 import { errorHandler } from "./middlewares/errorHandler";
+import favoriteRouter from "./routes/favorite.routes";
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use("/api", categoryRouter);
 app.use("/api", areaRouter);
 app.use("/api", ingredientRouter);
 app.use("/api", testimonialRouter);
+app.use("/api", favoriteRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ message: "Not found" });
