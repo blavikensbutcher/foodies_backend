@@ -5,6 +5,7 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./config/swagger";
 import healthRouter from "./routes/health";
+import authRouter from "./routes/auth.routes";
 import userRouter from "./routes/user.routes";
 import categoryRouter from "./routes/category.routes";
 import areaRouter from "./routes/area.routes";
@@ -21,6 +22,7 @@ app.use(express.json());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api", healthRouter);
+app.use("/api", authRouter);
 app.use("/api", userRouter);
 app.use("/api", categoryRouter);
 app.use("/api", areaRouter);
