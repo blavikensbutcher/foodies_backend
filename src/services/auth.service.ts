@@ -7,10 +7,13 @@ import {
   deleteSession,
 } from "../repositories/auth.repository";
 import * as userRepository from "../repositories/user.repository";
-import { ConflictError, UnauthorizedError } from "../errors/AppError";
+
+import {
+  ConflictError,
+  UnauthorizedError,
+} from "../errors/AppError";
 
 const SALT_ROUNDS = 10;
-const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 function createToken(userId: string, sessionId: string) {
   return jwt.sign(
@@ -20,7 +23,7 @@ function createToken(userId: string, sessionId: string) {
     },
     authConfig.jwtSecret,
     {
-      expiresIn: "7d",
+      expiresIn: authConfig.jwtExpiresIn,
     }
   );
 }
@@ -36,7 +39,10 @@ export async function registerUser(data: {
     throw new ConflictError("Email already in use");
   }
 
-  const passwordHash = await bcrypt.hash(data.password, SALT_ROUNDS);
+  const passwordHash = await bcrypt.hash(
+    data.password,
+    SALT_ROUNDS
+  );
 
   const user = await userRepository.create({
     name: data.name,
@@ -46,7 +52,9 @@ export async function registerUser(data: {
 
   const session = await createSession({
     userId: user.id,
-    expiresAt: new Date(Date.now() + SESSION_DURATION_MS),
+    expiresAt: new Date(
+      Date.now() + authConfig.sessionDurationMs
+    ),
   });
 
   const token = createToken(user.id, session.id);
@@ -83,7 +91,9 @@ export async function loginUser(data: {
 
   const session = await createSession({
     userId: user.id,
-    expiresAt: new Date(Date.now() + SESSION_DURATION_MS),
+    expiresAt: new Date(
+      Date.now() + authConfig.sessionDurationMs
+    ),
   });
 
   const token = createToken(user.id, session.id);
