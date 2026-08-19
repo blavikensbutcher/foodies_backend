@@ -16,3 +16,17 @@ export class NotFoundError extends AppError {
     this.name = "NotFoundError";
   }
 }
+
+export class ForbiddenError extends AppError {
+  constructor(message: string = ERROR_MESSAGES.FORBIDDEN) {
+    super(403, message);
+    this.name = "ForbiddenError";
+  }
+}
+
+export class BadRequestError extends AppError {
+  constructor(message: string = ERROR_MESSAGES.INVALID_REQUEST) {
+    super(400, message);
+    this.name = "BadRequestError";
+  }
+}
