@@ -7,6 +7,7 @@ import {
   deleteSession,
 } from "../repositories/auth.repository";
 import * as userRepository from "../repositories/user.repository";
+import { ConflictError, UnauthorizedError } from "../errors/AppError";
 
 const SALT_ROUNDS = 10;
 const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
@@ -32,7 +33,7 @@ export async function registerUser(data: {
   const existingUser = await userRepository.findByEmail(data.email);
 
   if (existingUser) {
-    throw new Error("Email already in use");
+    throw new ConflictError("Email already in use");
   }
 
   const passwordHash = await bcrypt.hash(data.password, SALT_ROUNDS);
@@ -68,7 +69,7 @@ export async function loginUser(data: {
   const user = await userRepository.findByEmail(data.email);
 
   if (!user) {
-    throw new Error("Invalid email or password");
+    throw new UnauthorizedError("Invalid email or password");
   }
 
   const passwordMatches = await bcrypt.compare(
@@ -77,7 +78,7 @@ export async function loginUser(data: {
   );
 
   if (!passwordMatches) {
-    throw new Error("Invalid email or password");
+    throw new UnauthorizedError("Invalid email or password");
   }
 
   const session = await createSession({
