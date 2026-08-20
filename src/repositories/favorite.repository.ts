@@ -1,11 +1,44 @@
 import prisma from "../lib/prisma";
 
-export const findFavoritesByUserId = async (id: string) => {
-  const favorite = await prisma.user.findUnique({
-    where: { id },
+export const findFavoritesByUserId = async (userId: string) => {
+  return prisma.user.findUnique({
+    where: { id: userId },
     select: {
       favorites: true,
     },
   });
-  return favorite;
+};
+
+export const addFavorite = async (
+  userId: string,
+  recipeId: string,
+) => {
+  return prisma.user.update({
+    where: { id: userId },
+    data: {
+      favorites: {
+        connect: { id: recipeId },
+      },
+    },
+    select: {
+      favorites: true,
+    },
+  });
+};
+
+export const removeFavorite = async (
+  userId: string,
+  recipeId: string,
+) => {
+  return prisma.user.update({
+    where: { id: userId },
+    data: {
+      favorites: {
+        disconnect: { id: recipeId },
+      },
+    },
+    select: {
+      favorites: true,
+    },
+  });
 };
