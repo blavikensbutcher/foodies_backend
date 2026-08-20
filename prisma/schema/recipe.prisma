@@ -3,7 +3,7 @@ model Recipe {
   title        String
   instructions String
   description  String?
-  thumb        String?
+  mainImage    String?  @map("main_image")
   time         String?
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -11,20 +11,23 @@ model Recipe {
   ownerId String @map("owner_id")
   owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
-  categoryId String @map("category_id")
+  categoryId String   @map("category_id")
   category   Category @relation(fields: [categoryId], references: [id])
 
   areaId String @map("area_id")
   area   Area   @relation(fields: [areaId], references: [id])
 
   ingredients RecipeIngredient[]
+  likedBy     User[]             @relation("RecipeLikes")
+
+  favoredBy User[] @relation("UserFavorites")
 
   @@map("recipes")
 }
 
 model RecipeIngredient {
-  recipeId     String @map("recipe_id")
-  ingredientId String @map("ingredient_id")
+  recipeId     String  @map("recipe_id")
+  ingredientId String  @map("ingredient_id")
   measure      String?
 
   recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)

@@ -1,4 +1,13 @@
 import prisma from "../lib/prisma";
+import {
+  recipeEntitySelect,
+  recipeOwnerSelect,
+  recipeRemoveSelect,
+  recipeWithOwnerIdSelect,
+} from "../types/recipe";
+import { CreateRecipeBody, UpdateRecipeBody } from "../utils/recipe.validation";
+
+// ---------- Публічні GET-ендпоінти (BE-4 / BE-5) ----------
 
 export interface RecipeFilters {
   categoryName?: string;
@@ -9,7 +18,7 @@ export interface RecipeFilters {
 const recipeListSelect = {
   id: true,
   title: true,
-  thumb: true,
+  mainImage: true,
   time: true,
   description: true,
   category: { select: { name: true } },
@@ -32,7 +41,7 @@ const recipeDetailSelect = {
 interface RecipeListRow {
   id: string;
   title: string;
-  thumb: string | null;
+  mainImage: string | null;
   time: string | null;
   description: string | null;
   category: { name: string };
@@ -62,9 +71,14 @@ function buildWhere(filters: RecipeFilters) {
 
 function toListItem(recipe: RecipeListRow) {
   return {
-    ...recipe,
+    id: recipe.id,
+    title: recipe.title,
+    thumb: recipe.mainImage,
+    time: recipe.time,
+    description: recipe.description,
     category: recipe.category.name,
     area: recipe.area.name,
+    owner: recipe.owner,
   };
 }
 
@@ -108,17 +122,88 @@ export async function findById(id: string) {
   return recipe ? toDetail(recipe) : null;
 }
 
-/**
- * TODO(BE-7): наразі немає моделі Favorite в схемі, тому "популярність"
- * тимчасово визначається як "останні додані рецепти". Коли з'явиться
- * модель Favorite дороблю)
- */
+
 export async function findPopular(take: number) {
   const recipes = await prisma.recipe.findMany({
     select: recipeListSelect,
     take,
-    orderBy: { createdAt: "desc" },
+    orderBy: { likedBy: { _count: "desc" } },
   });
 
   return recipes.map(toListItem);
 }
+
+// ---------- Приватні CRUD-ендпоінти (BE-6) ----------
+
+export const findOwnerById = (id: string) => {
+  return prisma.recipe.findUnique({
+    where: { id },
+    select: recipeOwnerSelect,
+  });
+};
+
+
+export const findEntityById = (id: string) => {
+  return prisma.recipe.findUnique({
+    where: { id },
+    select: recipeWithOwnerIdSelect,
+  });
+};
+
+export const create = (
+  data: CreateRecipeBody & { id: string; ownerId: string; mainImage?: string },
+) => {
+  const { ingredients, ...recipeData } = data;
+
+  return prisma.recipe.create({
+    data: {
+      ...recipeData,
+      ingredients: {
+        create: ingredients.map((ingredient) => ({
+          measure: ingredient.measure,
+          ingredient: { connect: { id: ingredient.id } },
+        })),
+      },
+    },
+    select: recipeEntitySelect,
+  });
+};
+
+export const update = (
+  id: string,
+  data: UpdateRecipeBody & { mainImage?: string | null },
+) => {
+  const { ingredients, ...recipeData } = data;
+
+  return prisma.recipe.update({
+    where: { id },
+    data: {
+      ...recipeData,
+      ...(ingredients && {
+        ingredients: {
+          deleteMany: {},
+          create: ingredients.map((ingredient) => ({
+            measure: ingredient.measure,
+            ingredient: { connect: { id: ingredient.id } },
+          })),
+        },
+      }),
+    },
+    select: recipeEntitySelect,
+  });
+};
+
+export const remove = async (id: string) => {
+  const recipe = await prisma.recipe.findUnique({
+    where: { id },
+    select: recipeRemoveSelect,
+  });
+
+  if (!recipe) {
+    return null;
+  }
+
+  await prisma.recipe.delete({ where: { id } });
+
+  return recipe;
+};
