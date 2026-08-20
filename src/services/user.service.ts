@@ -1,6 +1,7 @@
 import * as userRepository from "../repositories/user.repository";
 import { BadRequestError, NotFoundError } from "../errors/AppError";
 import { ERROR_MESSAGES } from "../errors/error.constants";
+import { deleteFile, uploadAvatarFile } from "./upload.service";
 import { UserCard } from "../types/user.types";
 
 function userNotFound(id: string) {
@@ -95,18 +96,43 @@ export async function getUserProfileById(id: string) {
 
 export async function updateCurrentUserAvatar(
   id: string,
-  avatar: string | null,
+  avatar: string | null | undefined,
+  avatarFile?: Express.Multer.File,
 ) {
-  const user = await userRepository.updateAvatar(id, avatar);
+  const currentUser = await userRepository.findById(id);
 
-  return {
-    id: user.id,
-    avatar: user.avatar,
-    name: user.name,
-    email: user.email,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
-  };
+  if (!currentUser) {
+    throw new NotFoundError(`${ERROR_MESSAGES.USER_NOT_FOUND} (id: "${id}")`);
+  }
+
+  const nextAvatar = avatarFile ? await uploadAvatarFile(avatarFile) : avatar;
+
+  if (nextAvatar === undefined) {
+    throw new BadRequestError("Avatar file or avatar URL is required");
+  }
+
+  try {
+    const user = await userRepository.updateAvatar(id, nextAvatar);
+
+    if (currentUser.avatar && currentUser.avatar !== nextAvatar) {
+      await deleteFile(currentUser.avatar);
+    }
+
+    return {
+      id: user.id,
+      avatar: user.avatar,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  } catch (error) {
+    if (avatarFile && nextAvatar) {
+      await deleteFile(nextAvatar);
+    }
+
+    throw error;
+  }
 }
 
 export async function getCurrentUserFollowers(id: string) {

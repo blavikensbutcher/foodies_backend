@@ -55,10 +55,11 @@ export async function updateCurrentUserAvatar(
     return;
   }
 
-  const data = updateAvatarSchema.parse(req.body);
+  const data = req.file ? undefined : updateAvatarSchema.parse(req.body);
   const user = await userService.updateCurrentUserAvatar(
     req.auth.userId,
-    data.avatar,
+    data?.avatar,
+    req.file,
   );
 
   res.json(user);

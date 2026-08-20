@@ -24,17 +24,17 @@ export class ForbiddenError extends AppError {
   }
 }
 
-export class UnauthorizedError extends AppError {
-  constructor(message: string = "Unauthorized") {
-    super(401, message);
-    this.name = "UnauthorizedError";
-  }
-}
-
 export class BadRequestError extends AppError {
   constructor(message: string = ERROR_MESSAGES.INVALID_REQUEST) {
     super(400, message);
     this.name = "BadRequestError";
+  }
+}
+
+export class UnauthorizedError extends AppError {
+  constructor(message: string = "Unauthorized") {
+    super(401, message);
+    this.name = "UnauthorizedError";
   }
 }
 
