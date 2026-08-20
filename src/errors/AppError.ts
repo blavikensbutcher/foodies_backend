@@ -30,3 +30,17 @@ export class BadRequestError extends AppError {
     this.name = "BadRequestError";
   }
 }
+
+export class UnauthorizedError extends AppError {
+  constructor(message: string = "Unauthorized") {
+    super(401, message);
+    this.name = "UnauthorizedError";
+  }
+}
+
+export class ConflictError extends AppError {
+  constructor(message: string = "Conflict") {
+    super(409, message);
+    this.name = "ConflictError";
+  }
+}
