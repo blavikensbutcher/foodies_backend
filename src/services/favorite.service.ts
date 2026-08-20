@@ -5,13 +5,13 @@ import {
   findRecipeById,
 } from "../repositories/favorite.repository";
 
-import { AppError } from "../errors/AppError";
+import { NotFoundError } from "../errors/AppError";
 
 export const getUserFavorites = async (userId: string) => {
   const result = await findFavoritesByUserId(userId);
 
   if (!result) {
-    throw new AppError(404, "User not found");
+    throw new NotFoundError("User not found");
   }
 
   return result.favorites;
@@ -24,7 +24,7 @@ export const addUserFavorite = async (
   const recipe = await findRecipeById(recipeId);
 
   if (!recipe) {
-    throw new AppError(404, "Recipe not found");
+    throw new NotFoundError("Recipe not found");
   }
 
   const result = await addFavorite(userId, recipeId);
@@ -39,7 +39,7 @@ export const removeUserFavorite = async (
   const recipe = await findRecipeById(recipeId);
 
   if (!recipe) {
-    throw new AppError(404, "Recipe not found");
+    throw new NotFoundError("Recipe not found");
   }
 
   const result = await removeFavorite(userId, recipeId);
