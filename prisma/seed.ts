@@ -49,7 +49,7 @@ interface RecipeJson {
   description?: string;
   thumb?: string;
   time?: string;
-  ingredients: { id: string; measure?: string }[];
+  ingredients: { id: string; measure: string }[];
   createdAt?: { $date: { $numberLong: string } };
   updatedAt?: { $date: { $numberLong: string } };
 }
@@ -146,7 +146,7 @@ async function main() {
         title: recipe.title,
         instructions: recipe.instructions,
         description: recipe.description,
-        thumb: recipe.thumb,
+        mainImage: recipe.thumb,
         time: recipe.time,
         createdAt: toDate(recipe.createdAt),
         updatedAt: toDate(recipe.updatedAt),

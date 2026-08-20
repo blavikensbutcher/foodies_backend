@@ -13,3 +13,10 @@ export function findAll() {
     },
   });
 }
+
+export function findByIds(ids: string[]) {
+  return prisma.ingredient.findMany({
+    where: { id: { in: ids } },
+    select: { id: true },
+  });
+}
