@@ -11,6 +11,8 @@ model User {
   likedRecipes Recipe[] @relation("RecipeLikes")
   testimonials Testimonial[]
 
+  favorites Recipe[] @relation("UserFavorites")
+
   following User[] @relation("UserFollows")
   followers User[] @relation("UserFollows")
 

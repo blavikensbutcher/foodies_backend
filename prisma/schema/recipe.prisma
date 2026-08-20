@@ -20,6 +20,8 @@ model Recipe {
   ingredients RecipeIngredient[]
   likedBy     User[]             @relation("RecipeLikes")
 
+  favoredBy User[] @relation("UserFavorites")
+
   @@map("recipes")
 }
 

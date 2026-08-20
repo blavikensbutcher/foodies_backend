@@ -34,6 +34,7 @@ const options: swaggerJsdoc.Options = {
             "avatar",
             "email",
             "recipesCount",
+            "favoritesCount",
             "followersCount",
             "followingCount",
             "isFollowing",
@@ -45,6 +46,7 @@ const options: swaggerJsdoc.Options = {
             avatar: { type: "string", nullable: true },
             email: { type: "string" },
             recipesCount: { type: "integer" },
+            favoritesCount: { type: "integer" },
             followersCount: { type: "integer" },
             followingCount: { type: "integer" },
             isFollowing: {

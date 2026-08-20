@@ -12,6 +12,7 @@ export interface UserCard {
   avatar: string | null;
   email: string;
   recipesCount: number;
+  favoritesCount: number;
   followersCount: number;
   followingCount: number;
   // relative to the authenticated user, not to the profile being viewed
