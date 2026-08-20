@@ -9,6 +9,12 @@ export const findFavoritesByUserId = async (userId: string) => {
   });
 };
 
+export const findRecipeById = async (recipeId: string) => {
+  return prisma.recipe.findUnique({
+    where: { id: recipeId },
+  });
+};
+
 export const addFavorite = async (
   userId: string,
   recipeId: string,
