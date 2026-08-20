@@ -2,10 +2,13 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { authConfig } from "../config/auth";
+
 import {
   createSession,
   deleteSession,
+  findSessionById,
 } from "../repositories/auth.repository";
+
 import * as userRepository from "../repositories/user.repository";
 
 import {
@@ -15,17 +18,39 @@ import {
 
 const SALT_ROUNDS = 10;
 
-function createToken(userId: string, sessionId: string) {
+function createAccessToken(userId: string, sessionId: string) {
   return jwt.sign(
     {
       sub: userId,
       sid: sessionId,
+      type: "access",
     },
     authConfig.jwtSecret,
     {
-      expiresIn: authConfig.jwtExpiresIn,
+      expiresIn: authConfig.accessTokenExpiresIn,
     }
   );
+}
+
+function createRefreshToken(userId: string, sessionId: string) {
+  return jwt.sign(
+    {
+      sub: userId,
+      sid: sessionId,
+      type: "refresh",
+    },
+    authConfig.jwtSecret,
+    {
+      expiresIn: authConfig.refreshTokenExpiresIn,
+    }
+  );
+}
+
+function createTokens(userId: string, sessionId: string) {
+  return {
+    accessToken: createAccessToken(userId, sessionId),
+    refreshToken: createRefreshToken(userId, sessionId),
+  };
 }
 
 export async function registerUser(data: {
@@ -57,7 +82,7 @@ export async function registerUser(data: {
     ),
   });
 
-  const token = createToken(user.id, session.id);
+  const tokens = createTokens(user.id, session.id);
 
   return {
     user: {
@@ -66,7 +91,7 @@ export async function registerUser(data: {
       email: user.email,
       avatar: user.avatar,
     },
-    token,
+    ...tokens,
   };
 }
 
@@ -77,7 +102,9 @@ export async function loginUser(data: {
   const user = await userRepository.findByEmail(data.email);
 
   if (!user) {
-    throw new UnauthorizedError("Invalid email or password");
+    throw new UnauthorizedError(
+      "Invalid email or password"
+    );
   }
 
   const passwordMatches = await bcrypt.compare(
@@ -86,7 +113,9 @@ export async function loginUser(data: {
   );
 
   if (!passwordMatches) {
-    throw new UnauthorizedError("Invalid email or password");
+    throw new UnauthorizedError(
+      "Invalid email or password"
+    );
   }
 
   const session = await createSession({
@@ -96,7 +125,7 @@ export async function loginUser(data: {
     ),
   });
 
-  const token = createToken(user.id, session.id);
+  const tokens = createTokens(user.id, session.id);
 
   return {
     user: {
@@ -105,7 +134,62 @@ export async function loginUser(data: {
       email: user.email,
       avatar: user.avatar,
     },
-    token,
+    ...tokens,
+  };
+}
+
+export async function refreshUserSession(
+  refreshToken: string
+) {
+  let payload: jwt.JwtPayload;
+
+  try {
+    const decoded = jwt.verify(
+      refreshToken,
+      authConfig.jwtSecret
+    );
+
+    if (
+      typeof decoded === "string" ||
+      decoded.type !== "refresh" ||
+      typeof decoded.sub !== "string" ||
+      typeof decoded.sid !== "string"
+    ) {
+      throw new UnauthorizedError(
+        "Invalid refresh token"
+      );
+    }
+
+    payload = decoded;
+  } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      throw error;
+    }
+
+    throw new UnauthorizedError(
+      "Invalid or expired refresh token"
+    );
+  }
+
+  const session = await findSessionById(
+    payload.sid as string
+  );
+
+  if (
+    !session ||
+    session.userId !== payload.sub ||
+    session.expiresAt <= new Date()
+  ) {
+    throw new UnauthorizedError(
+      "Session is invalid or expired"
+    );
+  }
+
+  return {
+    accessToken: createAccessToken(
+      payload.sub as string,
+      payload.sid as string
+    ),
   };
 }
 
