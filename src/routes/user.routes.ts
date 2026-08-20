@@ -50,8 +50,13 @@ router.get(
  * @openapi
  * /users/{id}:
  *   get:
- *     summary: Get a user by id
+ *     summary: Get a user profile by id
+ *     description: >
+ *       Returns the public profile of a user together with the recipe and
+ *       follow counters, plus `isFollowing` relative to the authenticated user.
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -65,26 +70,16 @@ router.get(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 name:
- *                   type: string
- *                 avatar:
- *                   type: string
- *                   nullable: true
- *                 email:
- *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
- *                 updatedAt:
- *                   type: string
- *                   format: date-time
+ *               $ref: '#/components/schemas/UserCard'
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: User not found
  */
-router.get("/users/:id", asyncHandler(userController.getUserById));
+router.get(
+  "/users/:id",
+  asyncHandler(authenticate),
+  asyncHandler(userController.getUserById),
+);
 
 export default router;

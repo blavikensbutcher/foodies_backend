@@ -1,19 +1,19 @@
 import { NextFunction, Request, Response } from "express";
+import { ParamsDictionary } from "express-serve-static-core";
 import jwt from "jsonwebtoken";
 
 import { authConfig } from "../config/auth";
 import { findSessionById } from "../repositories/auth.repository";
+import { AuthContext } from "../types/auth.types";
 
 type AuthPayload = {
   sub: string;
   sid: string;
 };
 
-export interface AuthenticatedRequest extends Request {
-  auth?: {
-    userId: string;
-    sessionId: string;
-  };
+export interface AuthenticatedRequest<P = ParamsDictionary>
+  extends Request<P> {
+  auth?: AuthContext;
 }
 
 export async function authenticate(

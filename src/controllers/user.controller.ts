@@ -1,15 +1,17 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 
 import * as userService from "../services/user.service";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
+import { getAuthUserId } from "../utils/auth.context";
+import { UserCard } from "../types/user.types";
 
 export async function getUserById(
-  req: Request<{ id: string }>,
-  res: Response,
+  req: AuthenticatedRequest<{ id: string }>,
+  res: Response<UserCard>,
 ) {
-  const { id } = req.params;
+  const currentUserId = getAuthUserId(req);
 
-  const user = await userService.getUserById(id);
+  const user = await userService.getUserProfile(req.params.id, currentUserId);
 
   res.json(user);
 }
