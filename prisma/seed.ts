@@ -64,6 +64,8 @@ const toDate = (value?: { $date: { $numberLong: string } }): Date | undefined =>
   value ? new Date(Number(value.$date.$numberLong)) : undefined;
 
 async function main() {
+  const demoPasswordHash = await bcrypt.hash("password", 10);
+
   const areas = readJson<AreaJson[]>("areas.json");
   const categories = readJson<CategoryJson[]>("categories.json");
   const ingredients = readJson<IngredientJson[]>("ingredients.json");

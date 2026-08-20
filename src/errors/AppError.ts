@@ -38,6 +38,13 @@ export class UnauthorizedError extends AppError {
   }
 }
 
+export class BadRequestError extends AppError {
+  constructor(message: string = ERROR_MESSAGES.INVALID_REQUEST) {
+    super(400, message);
+    this.name = "BadRequestError";
+  }
+}
+
 export class ConflictError extends AppError {
   constructor(message: string = "Conflict") {
     super(409, message);
