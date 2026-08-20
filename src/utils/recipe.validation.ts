@@ -58,7 +58,6 @@ const recipeBodySchema = z.object({
 
 export const CreateRecipeSchema = recipeBodySchema;
 
-/** Multipart/Swagger sends "" for untouched fields — treat as "not provided". */
 const omitEmptyStrings = (value: unknown) => {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return value;
