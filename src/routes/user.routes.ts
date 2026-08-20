@@ -8,7 +8,7 @@ const router = Router();
 
 /**
  * @openapi
- * /users/me:
+ * /users/current:
  *   get:
  *     summary: Get current authenticated user
  *     tags: [Users]
@@ -41,7 +41,7 @@ const router = Router();
  *         description: Unauthorized
  */
 router.get(
-  "/users/me",
+  "/users/current",
   asyncHandler(authenticate),
   asyncHandler(userController.getCurrentUser),
 );

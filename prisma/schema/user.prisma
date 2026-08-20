@@ -8,9 +8,8 @@ model User {
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   recipes      Recipe[]
+  likedRecipes Recipe[]      @relation("RecipeLikes")
   testimonials Testimonial[]
-
-  favorites Recipe[] @relation("UserFavorites")
 
   following User[] @relation("UserFollows")
   followers User[] @relation("UserFollows")

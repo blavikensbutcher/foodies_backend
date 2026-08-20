@@ -7,4 +7,6 @@ export const ERROR_MESSAGES = {
   TESTIMONIAL_NOT_FOUND: "Testimonial not found",
   INVALID_REQUEST: "Invalid request",
   INTERNAL_SERVER_ERROR: "Internal server error",
+  RECIPE_NOT_FOUND: "Recipe not found",
+  FORBIDDEN: "Forbidden",
 } as const;
