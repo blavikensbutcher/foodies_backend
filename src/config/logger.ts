@@ -2,10 +2,14 @@ import winston from "winston";
 
 const { combine, timestamp, printf, colorize } = winston.format;
 
-const customFormat = printf(({ level, message, timestamp, ...meta }: any) => {
-  const metaString = Object.keys(meta).length ? JSON.stringify(meta) : "";
-  return `${timestamp} [${level}]: ${message} ${metaString}`;
-});
+const customFormat = printf(
+  ({ level, message, timestamp, ...meta }: any) => {
+    const metaString = Object.keys(meta).length
+      ? JSON.stringify(meta)
+      : "";
+    return `${timestamp} [${level}]: ${message} ${metaString}`;
+  },
+);
 
 /**
  * Application logger instance

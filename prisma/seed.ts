@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import prisma from "../src/lib/prisma";
 
@@ -48,7 +49,7 @@ interface RecipeJson {
   description?: string;
   thumb?: string;
   time?: string;
-  ingredients: { id: string; measure?: string }[];
+  ingredients: { id: string; measure: string }[];
   createdAt?: { $date: { $numberLong: string } };
   updatedAt?: { $date: { $numberLong: string } };
 }
@@ -73,16 +74,24 @@ async function main() {
   const testimonials = readJson<TestimonialJson[]>("testimonials.json");
 
   console.log("Seeding users...");
+
+  const seedPassword = process.env.SEED_USER_PASSWORD;
+  const seedPasswordHash = await bcrypt.hash(seedPassword ?? randomUUID(), 10);
+
+  if (!seedPassword) {
+    console.log("  seeded users cannot log in (set SEED_USER_PASSWORD to change that)");
+  }
+
   for (const user of users) {
     await prisma.user.upsert({
       where: { id: oid(user._id) },
-      update: {},
+      update: { passwordHash: seedPasswordHash },
       create: {
         id: oid(user._id),
         name: user.name,
         avatar: user.avatar,
         email: user.email,
-        passwordHash: demoPasswordHash,
+        passwordHash: seedPasswordHash,
       },
     });
   }
@@ -139,7 +148,7 @@ async function main() {
         title: recipe.title,
         instructions: recipe.instructions,
         description: recipe.description,
-        thumb: recipe.thumb,
+        mainImage: recipe.thumb,
         time: recipe.time,
         createdAt: toDate(recipe.createdAt),
         updatedAt: toDate(recipe.updatedAt),

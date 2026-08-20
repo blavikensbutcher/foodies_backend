@@ -1,9 +1,7 @@
-import "dotenv/config";
 import app from "./app";
+import { config } from "./config/config";
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Swagger docs at http://localhost:${PORT}/api-docs`);
+app.listen(config.PORT, () => {
+  console.log(`Server running on ${config.APP_URL}`);
+  console.log(`Swagger docs at ${config.APP_URL}/api-docs`);
 });
