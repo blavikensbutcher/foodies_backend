@@ -195,6 +195,9 @@ router.get(
  * /users/{id}:
  *   get:
  *     summary: Get another user's profile by id
+ *     description: >
+ *       Returns the profile of a user together with the recipe and follow
+ *       counters, plus `isFollowing` relative to the authenticated user.
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -211,23 +214,7 @@ router.get(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 name:
- *                   type: string
- *                 avatar:
- *                   type: string
- *                   nullable: true
- *                 email:
- *                   type: string
- *                 recipesCreatedCount:
- *                   type: integer
- *                   example: 12
- *                 subscribersCount:
- *                   type: integer
- *                   example: 8
+ *               $ref: '#/components/schemas/UserCard'
  *       401:
  *         description: Unauthorized
  *       404:
@@ -236,7 +223,7 @@ router.get(
 router.get(
   "/users/:id",
   asyncHandler(authenticate),
-  asyncHandler(userController.getUserProfileById),
+  asyncHandler(userController.getUserById),
 );
 
 /**
