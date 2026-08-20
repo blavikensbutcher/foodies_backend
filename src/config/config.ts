@@ -1,5 +1,4 @@
 import "dotenv/config";
-import path from "node:path";
 
 const getRequiredEnv = (name: string): string => {
   const value = process.env[name];
@@ -20,5 +19,4 @@ export const config = {
   CLOUDINARY_CLOUD_NAME: getRequiredEnv("CLOUDINARY_CLOUD_NAME"),
   CLOUDINARY_API_KEY: getRequiredEnv("CLOUDINARY_API_KEY"),
   CLOUDINARY_API_SECRET: getRequiredEnv("CLOUDINARY_API_SECRET"),
-  SEED_DATA_DIR: process.env.SEED_DATA_DIR ?? path.resolve(process.cwd(), "prisma/seed-data"),
 } as const;

@@ -1,16 +1,8 @@
-/*
-  Warnings:
-
-  - You are about to drop the column `thumb` on the `recipes` table. All the data in the column will be lost.
-  - Made the column `measure` on table `recipe_ingredients` required. This step will fail if there are existing NULL values in that column.
-
-*/
 -- AlterTable
 ALTER TABLE "recipe_ingredients" ALTER COLUMN "measure" SET NOT NULL;
 
--- AlterTable
-ALTER TABLE "recipes" DROP COLUMN "thumb",
-ADD COLUMN     "main_image" TEXT;
+-- AlterTable: rename thumb -> main_image
+ALTER TABLE "recipes" RENAME COLUMN "thumb" TO "main_image";
 
 -- CreateTable
 CREATE TABLE "_RecipeLikes" (

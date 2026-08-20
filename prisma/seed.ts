@@ -1,9 +1,8 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { config } from "../src/config/config";
 import prisma from "../src/lib/prisma";
 
-const DATA_DIR = config.SEED_DATA_DIR;
+const DATA_DIR = process.env.SEED_DATA_DIR ?? path.join(__dirname, "seed-data");
 
 type OId = string | { $oid: string };
 
@@ -46,7 +45,7 @@ interface RecipeJson {
   area: string;
   instructions: string;
   description?: string;
-  mainImage?: string;
+  thumb?: string;
   time?: string;
   ingredients: { id: string; measure: string }[];
   createdAt?: { $date: { $numberLong: string } };
@@ -136,7 +135,7 @@ async function main() {
         title: recipe.title,
         instructions: recipe.instructions,
         description: recipe.description,
-        mainImage: recipe.mainImage,
+        mainImage: recipe.thumb,
         time: recipe.time,
         createdAt: toDate(recipe.createdAt),
         updatedAt: toDate(recipe.updatedAt),
