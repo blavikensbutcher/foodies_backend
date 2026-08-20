@@ -15,3 +15,19 @@ export function findById(id: string) {
     select: userSelect,
   });
 }
+
+export function findByEmail(email: string) {
+  return prisma.user.findUnique({
+    where: { email },
+  });
+}
+
+export function create(data: {
+  name: string;
+  email: string;
+  passwordHash: string;
+}) {
+  return prisma.user.create({
+    data,
+  });
+}
