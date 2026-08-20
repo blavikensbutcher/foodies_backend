@@ -30,8 +30,7 @@
   },
   "homepage": "https://github.com/blavikensbutcher/foodies_backend#readme",
   "dependencies": {
-    "@prisma/adapter-pg": "^7.9.1",
-    "@prisma/client": "^7.9.1",
+    "@prisma/client": "^6.12.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -54,7 +53,7 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/winston": "^2.4.4",
-    "prisma": "^7.9.1",
+    "prisma": "^6.12.0",
     "swagger-jsdoc": "^6.3.0",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2"

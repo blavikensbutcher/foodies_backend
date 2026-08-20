@@ -19,6 +19,8 @@ model Recipe {
 
   ingredients RecipeIngredient[]
 
+  favoredBy User[] @relation("UserFavorites")
+
   @@map("recipes")
 }
 

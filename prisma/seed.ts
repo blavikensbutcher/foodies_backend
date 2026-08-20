@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import bcrypt from "bcryptjs";
 import prisma from "../src/lib/prisma";
 
 const DATA_DIR = process.env.SEED_DATA_DIR ?? path.join(__dirname, "seed-data");
@@ -62,6 +63,8 @@ const toDate = (value?: { $date: { $numberLong: string } }): Date | undefined =>
   value ? new Date(Number(value.$date.$numberLong)) : undefined;
 
 async function main() {
+  const demoPasswordHash = await bcrypt.hash("password", 10);
+
   const areas = readJson<AreaJson[]>("areas.json");
   const categories = readJson<CategoryJson[]>("categories.json");
   const ingredients = readJson<IngredientJson[]>("ingredients.json");
@@ -79,6 +82,7 @@ async function main() {
         name: user.name,
         avatar: user.avatar,
         email: user.email,
+        passwordHash: demoPasswordHash,
       },
     });
   }
