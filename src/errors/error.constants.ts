@@ -5,6 +5,7 @@ export const ERROR_MESSAGES = {
   AREA_NOT_FOUND: "Area not found",
   INGREDIENT_NOT_FOUND: "Ingredient not found",
   TESTIMONIAL_NOT_FOUND: "Testimonial not found",
+  RECIPE_NOT_FOUND: "Recipe not found",
   INVALID_REQUEST: "Invalid request",
   INTERNAL_SERVER_ERROR: "Internal server error",
 } as const;
