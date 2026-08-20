@@ -1,5 +1,6 @@
 import { unlink } from "node:fs/promises";
 
+import { CLOUDINARY_AVATARS_FOLDER } from "../constants/uploads";
 import { cloudinary } from "../config/cloudinary";
 import { logger } from "../config/logger";
 
@@ -59,6 +60,9 @@ export const uploadFile = async (
     stream.end(file.buffer);
   });
 };
+
+export const uploadAvatarFile = (file: Express.Multer.File): Promise<string> =>
+  uploadFile(file, CLOUDINARY_AVATARS_FOLDER);
 
 export const deleteFile = async (url: string): Promise<void> => {
   const publicId = extractPublicId(url);

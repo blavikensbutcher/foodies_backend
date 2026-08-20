@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import * as userController from "../controllers/user.controller";
 import { authenticate } from "../middlewares/auth.middleware";
+import { uploadAvatarImage } from "../middlewares/upload.middleware";
 import { asyncHandler } from "../utils/asyncHandler";
 
 const router = Router();
@@ -63,6 +64,15 @@ router.get(
  *     requestBody:
  *       required: true
  *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - avatar
+ *             properties:
+ *               avatar:
+ *                 type: string
+ *                 format: binary
  *         application/json:
  *           schema:
  *             type: object
@@ -104,6 +114,7 @@ router.get(
 router.patch(
   "/users/me/avatar",
   asyncHandler(authenticate),
+  uploadAvatarImage,
   asyncHandler(userController.updateCurrentUserAvatar),
 );
 
