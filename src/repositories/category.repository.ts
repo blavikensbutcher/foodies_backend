@@ -11,3 +11,13 @@ export function findAll() {
     },
   });
 }
+
+export function findById(id: string) {
+  return prisma.category.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+}
