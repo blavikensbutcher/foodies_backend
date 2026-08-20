@@ -10,6 +10,10 @@ const parseIngredients = (value: unknown) => {
     return value;
   }
 
+  if (value.trim() === "") {
+    return undefined;
+  }
+
   try {
     return JSON.parse(value);
   } catch {
@@ -54,19 +58,29 @@ const recipeBodySchema = z.object({
 
 export const CreateRecipeSchema = recipeBodySchema;
 
-export const UpdateRecipeSchema = recipeBodySchema
-  .partial()
-  .refine(
-    (data) =>
-      data.title !== undefined ||
-      data.instructions !== undefined ||
-      data.description !== undefined ||
-      data.time !== undefined ||
-      data.categoryId !== undefined ||
-      data.areaId !== undefined ||
-      data.ingredients !== undefined,
-    { message: "At least one field must be provided for update" },
+/** Multipart/Swagger sends "" for untouched fields — treat as "not provided". */
+const omitEmptyStrings = (value: unknown) => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return value;
+  }
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([key, fieldValue]) => [
+      key,
+      typeof fieldValue === "string" && fieldValue.trim() === ""
+        ? undefined
+        : fieldValue,
+    ]),
   );
+};
+
+const hasProvidedValue = (value: unknown) =>
+  value !== undefined && !(typeof value === "string" && value.trim() === "");
+
+export const UpdateRecipeSchema = z.preprocess(
+  omitEmptyStrings,
+  recipeBodySchema.partial(),
+);
 
 export const RecipeParamsSchema = z.object({
   id: z.string().trim().min(1, "Recipe id is required"),
@@ -76,18 +90,21 @@ export type CreateRecipeBody = z.infer<typeof CreateRecipeSchema>;
 export type UpdateRecipeBody = z.infer<typeof UpdateRecipeSchema>;
 export type RecipeParams = z.infer<typeof RecipeParamsSchema>;
 
-export function hasRecipeUpdatePayload(body: Record<string, unknown>, hasFile: boolean): boolean {
+export function hasRecipeUpdatePayload(
+  body: Record<string, unknown>,
+  hasFile: boolean,
+): boolean {
   if (hasFile) {
     return true;
   }
 
   return (
-    body.title !== undefined ||
-    body.instructions !== undefined ||
-    body.description !== undefined ||
-    body.time !== undefined ||
-    body.categoryId !== undefined ||
-    body.areaId !== undefined ||
-    body.ingredients !== undefined
+    hasProvidedValue(body.title) ||
+    hasProvidedValue(body.instructions) ||
+    hasProvidedValue(body.description) ||
+    hasProvidedValue(body.time) ||
+    hasProvidedValue(body.categoryId) ||
+    hasProvidedValue(body.areaId) ||
+    hasProvidedValue(body.ingredients)
   );
 }

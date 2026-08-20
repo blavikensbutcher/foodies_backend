@@ -1,9 +1,10 @@
 import { unlink } from "node:fs/promises";
 
 import { cloudinary } from "../config/cloudinary";
+import { logger } from "../config/logger";
 
 const extractPublicId = (url: string) => {
-  const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z]+$/);
+  const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+(?:\?.*)?$/);
 
   return match?.[1] ?? null;
 };
@@ -63,8 +64,19 @@ export const deleteFile = async (url: string): Promise<void> => {
   const publicId = extractPublicId(url);
 
   if (!publicId) {
+    logger.warn("Could not extract Cloudinary public_id from url", { url });
     return;
   }
 
-  await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
+  const result = await cloudinary.uploader.destroy(publicId, {
+    resource_type: "image",
+    invalidate: true,
+  });
+
+  if (result.result !== "ok" && result.result !== "not found") {
+    logger.error("Failed to delete file from Cloudinary", {
+      publicId,
+      result,
+    });
+  }
 };
