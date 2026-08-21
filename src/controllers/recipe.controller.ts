@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Request, Response } from "express";
 
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 import * as recipeService from "../services/recipe.service";
@@ -8,6 +8,38 @@ import { CreateRecipeBody, UpdateRecipeBody } from "../utils/recipe.validation";
 import { getAuthUserId } from "../utils/auth.context";
 import { paginationSchema } from "../utils/pagination";
 import { RecipeListPage } from "../types/recipe";
+
+// ---------- Публічні GET-ендпоінти (BE-4 / BE-5) ----------
+
+export async function getRecipes(req: Request, res: Response) {
+  const { category, ingredient, area, page, limit } = req.query;
+
+  const result = await recipeService.getRecipes({
+    category: typeof category === "string" ? category : undefined,
+    ingredient: typeof ingredient === "string" ? ingredient : undefined,
+    area: typeof area === "string" ? area : undefined,
+    page: page ? Number(page) : undefined,
+    limit: limit ? Number(limit) : undefined,
+  });
+
+  res.json(result);
+}
+
+export async function getRecipeById(
+  req: Request<{ id: string }>,
+  res: Response,
+) {
+  const { id } = req.params;
+  const recipe = await recipeService.getRecipeById(id);
+  res.json(recipe);
+}
+
+export async function getPopularRecipes(_req: Request, res: Response) {
+  const recipes = await recipeService.getPopularRecipes();
+  res.json(recipes);
+}
+
+// ---------- Приватні ендпоінти ----------
 
 export const getOwnRecipes = async (req: AuthenticatedRequest, res: Response<RecipeListPage>) => {
   const currentUserId = getAuthUserId(req);

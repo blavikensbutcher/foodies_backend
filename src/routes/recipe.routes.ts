@@ -168,6 +168,82 @@ router.delete(
 /**
  * @openapi
  * /recipes:
+ *   get:
+ *     summary: Get a paginated list of recipes with optional filters
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Filter by category name
+ *       - in: query
+ *         name: ingredient
+ *         schema:
+ *           type: string
+ *         description: Filter by ingredient id
+ *       - in: query
+ *         name: area
+ *         schema:
+ *           type: string
+ *         description: Filter by area name
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 12
+ *     responses:
+ *       200:
+ *         description: Paginated list of recipes
+ */
+router.get(APP_PATHS.RECIPES, asyncHandler(recipeController.getRecipes));
+
+/**
+ * @openapi
+ * /recipes/popular:
+ *   get:
+ *     summary: Get the most popular recipes
+ *     tags: [Recipes]
+ *     responses:
+ *       200:
+ *         description: List of popular recipes
+ */
+router.get(
+  `${APP_PATHS.RECIPES}/popular`,
+  asyncHandler(recipeController.getPopularRecipes),
+);
+
+/**
+ * @openapi
+ * /recipes/{id}:
+ *   get:
+ *     summary: Get a recipe by id
+ *     tags: [Recipes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The requested recipe
+ *       404:
+ *         description: Recipe not found
+ */
+router.get(
+  `${APP_PATHS.RECIPES}${RECIPE_PATHS.BY_ID}`,
+  asyncHandler(recipeController.getRecipeById),
+);
+
+/**
+ * @openapi
+ * /recipes:
  *   post:
  *     summary: Create a new recipe
  *     description: Creates a recipe with optional main image. Ingredients must be sent as a JSON string in multipart form-data.
@@ -307,6 +383,20 @@ router.post(
  *         description: Recipe, category, area or ingredient not found
  *       422:
  *         description: Validation failed
+ */
+router.patch(
+  `${APP_PATHS.RECIPES}${RECIPE_PATHS.BY_ID}`,
+  asyncHandler(authenticate),
+  validateParams(RecipeParamsSchema),
+  asyncHandler(authorizeRecipeOwner),
+  uploadRecipeImage,
+  validateUpdateRecipeBody,
+  asyncHandler(recipeController.update),
+);
+
+/**
+ * @openapi
+ * /recipes/{id}:
  *   delete:
  *     summary: Delete own recipe
  *     description: Deletes a recipe. Only the recipe owner can delete it.
@@ -339,14 +429,12 @@ router.post(
  *       404:
  *         description: Recipe not found
  */
-router.patch(
+router.delete(
   `${APP_PATHS.RECIPES}${RECIPE_PATHS.BY_ID}`,
   asyncHandler(authenticate),
   validateParams(RecipeParamsSchema),
   asyncHandler(authorizeRecipeOwner),
-  uploadRecipeImage,
-  validateUpdateRecipeBody,
-  asyncHandler(recipeController.update),
+  asyncHandler(recipeController.remove),
 );
 
 /**
@@ -371,6 +459,8 @@ router.patch(
  *               nullable: true
  *     Recipe:
  *       type: object
+ *       description: >
+ *         Форма відповіді для POST/PATCH (create/update)
  *       properties:
  *         id:
  *           type: string
@@ -422,13 +512,5 @@ router.patch(
  *           items:
  *             $ref: '#/components/schemas/RecipeIngredient'
  */
-
-router.delete(
-  `${APP_PATHS.RECIPES}${RECIPE_PATHS.BY_ID}`,
-  asyncHandler(authenticate),
-  validateParams(RecipeParamsSchema),
-  asyncHandler(authorizeRecipeOwner),
-  asyncHandler(recipeController.remove),
-);
 
 export default router;
