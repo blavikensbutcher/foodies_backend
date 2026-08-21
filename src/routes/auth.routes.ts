@@ -80,6 +80,41 @@ router.post("/auth/login", asyncHandler(authController.login));
 
 /**
  * @openapi
+ * /auth/refresh:
+ *   post:
+ *     summary: Refresh access token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 description: Refresh token returned during login or registration
+ *     responses:
+ *       200:
+ *         description: Access token refreshed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *       400:
+ *         description: Refresh token is required
+ *       401:
+ *         description: Invalid or expired refresh token
+ */
+router.post("/auth/refresh", asyncHandler(authController.refresh));
+
+/**
+ * @openapi
  * /auth/logout:
  *   post:
  *     summary: Logout user
