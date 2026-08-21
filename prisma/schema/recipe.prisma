@@ -18,7 +18,6 @@ model Recipe {
   area   Area   @relation(fields: [areaId], references: [id])
 
   ingredients RecipeIngredient[]
-  likedBy     User[]             @relation("RecipeLikes")
 
   favoredBy User[] @relation("UserFavorites")
 

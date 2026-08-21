@@ -14,6 +14,159 @@ const router = Router();
 
 /**
  * @openapi
+ * /recipes/own:
+ *   get:
+ *     summary: Get recipes created by the authenticated user
+ *     tags: [Recipes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *     responses:
+ *       200:
+ *         description: Paginated list of own recipes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RecipeListPage'
+ *       400:
+ *         description: Invalid pagination params
+ *       401:
+ *         description: Unauthorized
+ */
+router.get(
+  `${APP_PATHS.RECIPES}${RECIPE_PATHS.OWN}`,
+  asyncHandler(authenticate),
+  asyncHandler(recipeController.getOwnRecipes),
+);
+
+/**
+ * @openapi
+ * /recipes/favorites:
+ *   get:
+ *     summary: Get recipes the authenticated user marked as favorite
+ *     tags: [Recipes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *     responses:
+ *       200:
+ *         description: Paginated list of favorite recipes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RecipeListPage'
+ *       400:
+ *         description: Invalid pagination params
+ *       401:
+ *         description: Unauthorized
+ */
+router.get(
+  `${APP_PATHS.RECIPES}${RECIPE_PATHS.FAVORITES}`,
+  asyncHandler(authenticate),
+  asyncHandler(recipeController.getFavoriteRecipes),
+);
+
+/**
+ * @openapi
+ * /recipes/user/{id}:
+ *   get:
+ *     summary: Get recipes created by a given user
+ *     tags: [Recipes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Owner id
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *     responses:
+ *       200:
+ *         description: Paginated list of the user's recipes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RecipeListPage'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+router.get(
+  `${APP_PATHS.RECIPES}${RECIPE_PATHS.BY_USER}`,
+  asyncHandler(authenticate),
+  asyncHandler(recipeController.getUserRecipes),
+);
+
+/**
+ * @openapi
+ * /recipes/{recipeId}/favorite:
+ *   post:
+ *     summary: Add a recipe to favorites
+ *     tags: [Recipes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       201:
+ *         description: Recipe added to favorites
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/FavoriteState'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Recipe not found
+ *   delete:
+ *     summary: Remove a recipe from favorites
+ *     tags: [Recipes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Recipe removed from favorites
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/FavoriteState'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Recipe not found
+ */
+router.post(
+  `${APP_PATHS.RECIPES}${RECIPE_PATHS.FAVORITE_BY_ID}`,
+  asyncHandler(authenticate),
+  asyncHandler(recipeController.favoriteRecipe),
+);
+
+router.delete(
+  `${APP_PATHS.RECIPES}${RECIPE_PATHS.FAVORITE_BY_ID}`,
+  asyncHandler(authenticate),
+  asyncHandler(recipeController.unfavoriteRecipe),
+);
+
+/**
+ * @openapi
  * /recipes:
  *   get:
  *     summary: Get a paginated list of recipes with optional filters

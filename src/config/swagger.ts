@@ -60,6 +60,51 @@ const options: swaggerJsdoc.Options = {
             },
           },
         },
+        RecipeCard: {
+          type: "object",
+          required: ["id", "title", "description", "mainImage", "time", "owner", "isFavorite"],
+          properties: {
+            id: { type: "string" },
+            title: { type: "string" },
+            description: { type: "string", nullable: true },
+            mainImage: { type: "string", nullable: true },
+            time: { type: "string", nullable: true },
+            owner: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+                name: { type: "string" },
+                avatar: { type: "string", nullable: true },
+              },
+            },
+            isFavorite: {
+              type: "boolean",
+              description: "Whether the authenticated user favorited it",
+            },
+          },
+        },
+        FavoriteState: {
+          type: "object",
+          required: ["recipeId", "isFavorite"],
+          properties: {
+            recipeId: { type: "string" },
+            isFavorite: { type: "boolean" },
+          },
+        },
+        RecipeListPage: {
+          type: "object",
+          required: ["recipes", "total", "page", "limit", "totalPages"],
+          properties: {
+            recipes: {
+              type: "array",
+              items: { $ref: "#/components/schemas/RecipeCard" },
+            },
+            total: { type: "integer" },
+            page: { type: "integer" },
+            limit: { type: "integer" },
+            totalPages: { type: "integer" },
+          },
+        },
         UserListPage: {
           type: "object",
           required: ["users", "total", "page", "limit", "totalPages"],

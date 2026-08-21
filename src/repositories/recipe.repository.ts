@@ -1,11 +1,34 @@
 import prisma from "../lib/prisma";
+import { Prisma } from "../generated/prisma/client";
+import { PrismaPagination } from "../types/pagination.types";
 import {
+  recipeCardSelect,
   recipeEntitySelect,
   recipeOwnerSelect,
   recipeRemoveSelect,
   recipeWithOwnerIdSelect,
 } from "../types/recipe";
 import { CreateRecipeBody, UpdateRecipeBody } from "../utils/recipe.validation";
+
+// Cards for the profile lists: own recipes, favorites, another user's recipes.
+export const findCardsPage = async (
+  where: Prisma.RecipeWhereInput,
+  currentUserId: string,
+  { skip, take }: PrismaPagination,
+) => {
+  const [items, total] = await Promise.all([
+    prisma.recipe.findMany({
+      where,
+      select: recipeCardSelect(currentUserId),
+      orderBy: [{ createdAt: "desc" }, { id: "asc" }],
+      skip,
+      take,
+    }),
+    prisma.recipe.count({ where }),
+  ]);
+
+  return { items, total };
+};
 
 // ---------- Публічні GET-ендпоінти (BE-4 / BE-5) ----------
 
@@ -127,7 +150,7 @@ export async function findPopular(take: number) {
   const recipes = await prisma.recipe.findMany({
     select: recipeListSelect,
     take,
-    orderBy: { likedBy: { _count: "desc" } },
+    orderBy: { favoredBy: { _count: "desc" } },
   });
 
   return recipes.map(toListItem);
