@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 
-import { UnauthorizedError } from "../errors/AppError";
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 import * as recipeService from "../services/recipe.service";
-import {
-  CreateRecipeBody,
-  UpdateRecipeBody,
-} from "../utils/recipe.validation";
+import { addUserFavorite, removeUserFavorite } from "../services/favorite.service";
+import { CreateRecipeBody, UpdateRecipeBody } from "../utils/recipe.validation";
+
+import { getAuthUserId } from "../utils/auth.context";
+import { paginationSchema } from "../utils/pagination";
+import { RecipeListPage } from "../types/recipe";
 
 // ---------- Публічні GET-ендпоінти (BE-4 / BE-5) ----------
 
@@ -38,16 +39,59 @@ export async function getPopularRecipes(_req: Request, res: Response) {
   res.json(recipes);
 }
 
-// ---------- Приватні CRUD-ендпоінти (BE-6) ----------
+// ---------- Приватні ендпоінти ----------
 
-const getAuthUserId = (req: AuthenticatedRequest) => {
-  const userId = req.auth?.userId;
+export const getOwnRecipes = async (req: AuthenticatedRequest, res: Response<RecipeListPage>) => {
+  const currentUserId = getAuthUserId(req);
+  const pagination = paginationSchema.parse(req.query);
 
-  if (!userId) {
-    throw new UnauthorizedError("Authenticated user is missing");
-  }
+  res.json(await recipeService.getOwnRecipes(currentUserId, pagination));
+};
 
-  return userId;
+export const getFavoriteRecipes = async (
+  req: AuthenticatedRequest,
+  res: Response<RecipeListPage>,
+) => {
+  const currentUserId = getAuthUserId(req);
+  const pagination = paginationSchema.parse(req.query);
+
+  res.json(await recipeService.getFavoriteRecipes(currentUserId, pagination));
+};
+
+// The client only needs to know the new state; returning the whole
+// favorites list on every toggle grows with the collection.
+export const favoriteRecipe = async (
+  req: AuthenticatedRequest<{ recipeId: string }>,
+  res: Response<{ recipeId: string; isFavorite: boolean }>,
+) => {
+  const currentUserId = getAuthUserId(req);
+  const { recipeId } = req.params;
+
+  await addUserFavorite(currentUserId, recipeId);
+
+  res.status(201).json({ recipeId, isFavorite: true });
+};
+
+export const unfavoriteRecipe = async (
+  req: AuthenticatedRequest<{ recipeId: string }>,
+  res: Response<{ recipeId: string; isFavorite: boolean }>,
+) => {
+  const currentUserId = getAuthUserId(req);
+  const { recipeId } = req.params;
+
+  await removeUserFavorite(currentUserId, recipeId);
+
+  res.json({ recipeId, isFavorite: false });
+};
+
+export const getUserRecipes = async (
+  req: AuthenticatedRequest<{ id: string }>,
+  res: Response<RecipeListPage>,
+) => {
+  const currentUserId = getAuthUserId(req);
+  const pagination = paginationSchema.parse(req.query);
+
+  res.json(await recipeService.getUserRecipes(req.params.id, currentUserId, pagination));
 };
 
 export const create = async (req: AuthenticatedRequest, res: Response) => {

@@ -1,5 +1,8 @@
 import { randomUUID } from "crypto";
-
+import { Prisma } from "../generated/prisma/client";
+import { getUserById } from "./user.service";
+import { buildPageMeta, Pagination, toPrismaPagination } from "../utils/pagination";
+import { RecipeCard, RecipeCardRow, RecipeDeletedResponse, RecipeListPage } from "../types/recipe";
 import { NotFoundError } from "../errors/AppError";
 import { ERROR_MESSAGES } from "../errors/error.constants";
 import { CLOUDINARY_RECIPES_FOLDER } from "../constants/uploads";
@@ -9,7 +12,51 @@ import * as ingredientRepository from "../repositories/ingredient.repository";
 import * as recipeRepository from "../repositories/recipe.repository";
 import { deleteFile, uploadFile } from "./upload.service";
 import { CreateRecipeBody, UpdateRecipeBody } from "../utils/recipe.validation";
-import { RecipeDeletedResponse } from "../types/recipe";
+
+function toRecipeCard(recipe: RecipeCardRow): RecipeCard {
+  return {
+    id: recipe.id,
+    title: recipe.title,
+    description: recipe.description,
+    mainImage: recipe.mainImage,
+    time: recipe.time,
+    owner: recipe.owner,
+    isFavorite: recipe.favoredBy.length > 0,
+  };
+}
+
+async function getRecipeCardsPage(
+  where: Prisma.RecipeWhereInput,
+  currentUserId: string,
+  pagination: Pagination,
+): Promise<RecipeListPage> {
+  const { items, total } = await recipeRepository.findCardsPage(
+    where,
+    currentUserId,
+    toPrismaPagination(pagination),
+  );
+
+  return {
+    recipes: items.map(toRecipeCard),
+    ...buildPageMeta(total, pagination),
+  };
+}
+
+export const getOwnRecipes = (currentUserId: string, pagination: Pagination) =>
+  getRecipeCardsPage({ ownerId: currentUserId }, currentUserId, pagination);
+
+export const getFavoriteRecipes = (currentUserId: string, pagination: Pagination) =>
+  getRecipeCardsPage({ favoredBy: { some: { id: currentUserId } } }, currentUserId, pagination);
+
+export const getUserRecipes = async (
+  ownerId: string,
+  currentUserId: string,
+  pagination: Pagination,
+): Promise<RecipeListPage> => {
+  await getUserById(ownerId);
+
+  return getRecipeCardsPage({ ownerId }, currentUserId, pagination);
+};
 
 // ---------- Публічні GET-ендпоінти (BE-4 / BE-5) ----------
 
@@ -101,9 +148,7 @@ export const createRecipe = async (
     ensureIngredientsExist(data.ingredients),
   ]);
 
-  const mainImage = image
-    ? await uploadFile(image, CLOUDINARY_RECIPES_FOLDER)
-    : undefined;
+  const mainImage = image ? await uploadFile(image, CLOUDINARY_RECIPES_FOLDER) : undefined;
 
   return recipeRepository.create({
     id: randomUUID(),
@@ -151,9 +196,7 @@ export const updateRecipe = async (
   return recipeRepository.update(recipeId, updateData);
 };
 
-export const deleteRecipe = async (
-  recipeId: string,
-): Promise<RecipeDeletedResponse> => {
+export const deleteRecipe = async (recipeId: string): Promise<RecipeDeletedResponse> => {
   const deletedRecipe = await recipeRepository.remove(recipeId);
 
   if (!deletedRecipe) {

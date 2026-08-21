@@ -14,7 +14,7 @@ export const getUserFavorites = async (userId: string) => {
     throw new NotFoundError("User not found");
   }
 
-  return result.likedRecipes;
+  return result.favorites;
 };
 
 export const addUserFavorite = async (
@@ -29,7 +29,7 @@ export const addUserFavorite = async (
 
   const result = await addFavorite(userId, recipeId);
 
-  return result.likedRecipes;
+  return result.favorites;
 };
 
 export const removeUserFavorite = async (
@@ -44,5 +44,5 @@ export const removeUserFavorite = async (
 
   const result = await removeFavorite(userId, recipeId);
 
-  return result.likedRecipes;
+  return result.favorites;
 };

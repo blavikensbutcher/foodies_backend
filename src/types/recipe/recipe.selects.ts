@@ -60,3 +60,19 @@ export const recipeWithOwnerIdSelect = {
 export const recipeOwnerSelect = {
   ownerId: true,
 } as const satisfies Prisma.RecipeSelect;
+
+export const recipeCardSelect = (currentUserId: string) =>
+  ({
+    id: true,
+    title: true,
+    description: true,
+    mainImage: true,
+    time: true,
+    owner: {
+      select: { id: true, name: true, avatar: true },
+    },
+    favoredBy: {
+      where: { id: currentUserId },
+      select: { id: true },
+    },
+  }) satisfies Prisma.RecipeSelect;
