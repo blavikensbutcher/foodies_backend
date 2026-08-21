@@ -12,10 +12,9 @@ import categoryRouter from "./routes/category.routes";
 import areaRouter from "./routes/area.routes";
 import ingredientRouter from "./routes/ingredient.routes";
 import testimonialRouter from "./routes/testimonial.routes";
-import recipeRouter from "./routes/recipe.routes";
 import { errorHandler } from "./middlewares/errorHandler";
+import recipeRouter from "./routes/recipe.routes";
 import favoriteRouter from "./routes/favorite.routes";
-
 const app = express();
 
 app.use(helmet());
