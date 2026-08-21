@@ -11,7 +11,7 @@ const router = Router();
  * /users/{id}/followers:
  *   get:
  *     summary: Get users who follow the given user
- *     tags: [Follows]
+ *     tags: [Users]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -48,7 +48,7 @@ router.get(
  * /users/{id}/following:
  *   get:
  *     summary: Get users the given user follows
- *     tags: [Follows]
+ *     tags: [Users]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -85,7 +85,7 @@ router.get(
  * /users/{id}/follow:
  *   post:
  *     summary: Follow a user
- *     tags: [Follows]
+ *     tags: [Users]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -112,7 +112,7 @@ router.get(
  *         description: Already following this user
  *   delete:
  *     summary: Unfollow a user
- *     tags: [Follows]
+ *     tags: [Users]
  *     security:
  *       - bearerAuth: []
  *     parameters:
