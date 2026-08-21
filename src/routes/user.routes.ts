@@ -9,7 +9,7 @@ const router = Router();
 
 /**
  * @openapi
- * /users/current:
+ * /users/me:
  *   get:
  *     summary: Get current authenticated user
  *     tags: [Users]
@@ -48,7 +48,7 @@ const router = Router();
  *         description: Unauthorized
  */
 router.get(
-  "/users/current",
+  "/users/me",
   asyncHandler(authenticate),
   asyncHandler(userController.getCurrentUser),
 );
@@ -220,11 +220,7 @@ router.get(
  *       404:
  *         description: User not found
  */
-router.get(
-  "/users/:id",
-  asyncHandler(authenticate),
-  asyncHandler(userController.getUserById),
-);
+router.get("/users/:id", asyncHandler(authenticate), asyncHandler(userController.getUserById));
 
 /**
  * @openapi

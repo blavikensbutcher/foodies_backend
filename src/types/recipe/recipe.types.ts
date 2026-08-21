@@ -1,6 +1,7 @@
 import { Prisma } from "../../generated/prisma/client";
 
 import {
+  recipeCardSelect,
   recipeDeletedSelect,
   recipeEntitySelect,
   recipeRemoveSelect,
@@ -21,4 +22,8 @@ export type RecipeRemoveResult = Prisma.RecipeGetPayload<{
 
 export type RecipeWithOwnerId = Prisma.RecipeGetPayload<{
   select: typeof recipeWithOwnerIdSelect;
+}>;
+
+export type RecipeCardRow = Prisma.RecipeGetPayload<{
+  select: ReturnType<typeof recipeCardSelect>;
 }>;

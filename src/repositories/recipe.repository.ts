@@ -1,11 +1,33 @@
 import prisma from "../lib/prisma";
+import { Prisma } from "../generated/prisma/client";
+import { PrismaPagination } from "../types/pagination.types";
 import {
+  recipeCardSelect,
   recipeEntitySelect,
   recipeOwnerSelect,
   recipeRemoveSelect,
   recipeWithOwnerIdSelect,
 } from "../types/recipe";
 import { CreateRecipeBody, UpdateRecipeBody } from "../utils/recipe.validation";
+
+export const findCardsPage = async (
+  where: Prisma.RecipeWhereInput,
+  currentUserId: string,
+  { skip, take }: PrismaPagination,
+) => {
+  const [items, total] = await Promise.all([
+    prisma.recipe.findMany({
+      where,
+      select: recipeCardSelect(currentUserId),
+      orderBy: [{ createdAt: "desc" }, { id: "asc" }],
+      skip,
+      take,
+    }),
+    prisma.recipe.count({ where }),
+  ]);
+
+  return { items, total };
+};
 
 export const findById = (id: string) => {
   return prisma.recipe.findUnique({
@@ -40,10 +62,7 @@ export const create = (
   });
 };
 
-export const update = (
-  id: string,
-  data: UpdateRecipeBody & { mainImage?: string | null },
-) => {
+export const update = (id: string, data: UpdateRecipeBody & { mainImage?: string | null }) => {
   const { ingredients, ...recipeData } = data;
 
   return prisma.recipe.update({

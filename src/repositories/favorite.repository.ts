@@ -4,7 +4,7 @@ export const findFavoritesByUserId = async (userId: string) => {
   return prisma.user.findUnique({
     where: { id: userId },
     select: {
-      likedRecipes: true,
+      favorites: true,
     },
   });
 };
@@ -22,12 +22,12 @@ export const addFavorite = async (
   return prisma.user.update({
     where: { id: userId },
     data: {
-      likedRecipes: {
+      favorites: {
         connect: { id: recipeId },
       },
     },
     select: {
-      likedRecipes: true,
+      favorites: true,
     },
   });
 };
@@ -39,12 +39,12 @@ export const removeFavorite = async (
   return prisma.user.update({
     where: { id: userId },
     data: {
-      likedRecipes: {
+      favorites: {
         disconnect: { id: recipeId },
       },
     },
     select: {
-      likedRecipes: true,
+      favorites: true,
     },
   });
 };

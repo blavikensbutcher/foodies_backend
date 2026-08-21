@@ -1,4 +1,5 @@
 export {
+  recipeCardSelect,
   recipeDeletedSelect,
   recipeEntitySelect,
   recipeOwnerSelect,
@@ -6,7 +7,10 @@ export {
   recipeWithOwnerIdSelect,
 } from "./recipe.selects";
 
+export type { RecipeCard, RecipeListPage } from "./recipe.card.types";
+
 export type {
+  RecipeCardRow,
   RecipeDeletedResponse,
   RecipeEntity,
   RecipeRemoveResult,
