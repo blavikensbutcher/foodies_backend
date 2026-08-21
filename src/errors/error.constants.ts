@@ -6,5 +6,10 @@ export const ERROR_MESSAGES = {
   INGREDIENT_NOT_FOUND: "Ingredient not found",
   TESTIMONIAL_NOT_FOUND: "Testimonial not found",
   INVALID_REQUEST: "Invalid request",
+  CANNOT_FOLLOW_SELF: "You cannot follow yourself",
+  ALREADY_FOLLOWING: "You are already following this user",
+  NOT_FOLLOWING: "You are not following this user",
   INTERNAL_SERVER_ERROR: "Internal server error",
+  RECIPE_NOT_FOUND: "Recipe not found",
+  FORBIDDEN: "Forbidden",
 } as const;
