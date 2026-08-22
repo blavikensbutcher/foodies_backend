@@ -258,15 +258,18 @@ router.get(
  *             type: object
  *             required:
  *               - title
+ *               - description
  *               - instructions
+ *               - time
  *               - categoryId
  *               - areaId
  *               - ingredients
+ *               - mainImage
  *             properties:
  *               title:
  *                 type: string
  *                 minLength: 3
- *                 maxLength: 64
+ *                 maxLength: 100
  *                 example: Chocolate Cake
  *               instructions:
  *                 type: string
@@ -275,6 +278,7 @@ router.get(
  *                 example: Mix ingredients and bake for 30 minutes at 180C.
  *               description:
  *                 type: string
+ *                 minLength: 1
  *                 maxLength: 200
  *                 example: A rich chocolate dessert
  *               time:
@@ -293,7 +297,7 @@ router.get(
  *               mainImage:
  *                 type: string
  *                 format: binary
- *                 description: Optional recipe image (jpeg, png, webp)
+ *                 description: Recipe image (jpeg, png, webp)
  *     responses:
  *       201:
  *         description: Recipe created successfully
