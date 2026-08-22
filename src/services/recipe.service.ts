@@ -3,7 +3,7 @@ import { Prisma } from "../generated/prisma/client";
 import { getUserById } from "./user.service";
 import { buildPageMeta, Pagination, toPrismaPagination } from "../utils/pagination";
 import { RecipeCard, RecipeCardRow, RecipeDeletedResponse, RecipeListPage } from "../types/recipe";
-import { NotFoundError } from "../errors/AppError";
+import { NotFoundError, BadRequestError } from "../errors/AppError";
 import { ERROR_MESSAGES } from "../errors/error.constants";
 import { CLOUDINARY_RECIPES_FOLDER } from "../constants/uploads";
 import * as areaRepository from "../repositories/area.repository";
@@ -140,13 +140,17 @@ export const createRecipe = async (
   data: CreateRecipeBody,
   image?: Express.Multer.File,
 ) => {
+  if (!image) {
+    throw new BadRequestError(ERROR_MESSAGES.RECIPE_IMAGE_REQUIRED);
+  }
+
   await Promise.all([
     ensureCategoryExists(data.categoryId),
     ensureAreaExists(data.areaId),
     ensureIngredientsExist(data.ingredients),
   ]);
 
-  const mainImage = image ? await uploadFile(image, CLOUDINARY_RECIPES_FOLDER) : undefined;
+  const mainImage = await uploadFile(image, CLOUDINARY_RECIPES_FOLDER);
 
   return recipeRepository.create({
     id: randomUUID(),

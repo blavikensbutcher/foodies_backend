@@ -39,7 +39,7 @@ const recipeBodySchema = z.object({
     .string()
     .trim()
     .min(3, "Title must contain at least 3 characters")
-    .max(64, "Title must contain at most 64 characters"),
+    .max(100, "Title must contain at most 100 characters"),
   instructions: z
     .string()
     .trim()
@@ -48,9 +48,13 @@ const recipeBodySchema = z.object({
   description: z
     .string()
     .trim()
-    .max(200, "Description must contain at most 200 characters")
-    .optional(),
-  time: z.string().trim().optional(),
+    .min(1, "Description is required")
+    .max(200, "Description must contain at most 200 characters"),
+  time: z
+    .string()
+    .trim()
+    .min(1, "Cooking time is required")
+    .regex(/^\d+$/, "Cooking time must be a whole number"),
   categoryId: z.string().trim().min(1, "Category is required"),
   areaId: z.string().trim().min(1, "Area is required"),
   ingredients: recipeIngredientsSchema,
