@@ -78,8 +78,8 @@ export async function getRecipes(params: GetRecipesParams) {
 
   const { items, total } = await recipeRepository.findMany(
     {
-      categoryName: params.category,
-      areaName: params.area,
+      categoryId: params.category,
+      areaId: params.area,
       ingredientId: params.ingredient,
     },
     skip,

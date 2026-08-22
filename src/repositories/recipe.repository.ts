@@ -33,8 +33,8 @@ export const findCardsPage = async (
 // ---------- Публічні GET-ендпоінти (BE-4 / BE-5) ----------
 
 export interface RecipeFilters {
-  categoryName?: string;
-  areaName?: string;
+  categoryId?: string;
+  areaId?: string;
   ingredientId?: string;
 }
 
@@ -83,8 +83,8 @@ interface RecipeDetailRow extends RecipeListRow {
 
 function buildWhere(filters: RecipeFilters) {
   return {
-    ...(filters.categoryName && { category: { name: filters.categoryName } }),
-    ...(filters.areaName && { area: { name: filters.areaName } }),
+    ...(filters.categoryId && { categoryId: filters.categoryId }),
+    ...(filters.areaId && { areaId: filters.areaId }),
     ...(filters.ingredientId && {
       ingredients: { some: { ingredientId: filters.ingredientId } },
     }),

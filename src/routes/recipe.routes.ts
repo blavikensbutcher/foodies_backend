@@ -176,7 +176,7 @@ router.delete(
  *         name: category
  *         schema:
  *           type: string
- *         description: Filter by category name
+ *         description: Filter by category id
  *       - in: query
  *         name: ingredient
  *         schema:
@@ -186,7 +186,7 @@ router.delete(
  *         name: area
  *         schema:
  *           type: string
- *         description: Filter by area name
+ *         description: Filter by area id
  *       - in: query
  *         name: page
  *         schema:
