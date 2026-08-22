@@ -58,7 +58,6 @@ export const getUserRecipes = async (
   return getRecipeCardsPage({ ownerId }, currentUserId, pagination);
 };
 
-// ---------- Публічні GET-ендпоінти (BE-4 / BE-5) ----------
 
 export interface GetRecipesParams {
   category?: string;
@@ -78,8 +77,8 @@ export async function getRecipes(params: GetRecipesParams) {
 
   const { items, total } = await recipeRepository.findMany(
     {
-      categoryName: params.category,
-      areaName: params.area,
+      categoryId: params.category,
+      areaId: params.area,
       ingredientId: params.ingredient,
     },
     skip,
@@ -109,7 +108,6 @@ export function getPopularRecipes() {
   return recipeRepository.findPopular(POPULAR_LIMIT);
 }
 
-// ---------- Приватні CRUD-ендпоінти (BE-6) ----------
 
 const ensureCategoryExists = async (categoryId: string) => {
   const category = await categoryRepository.findById(categoryId);
