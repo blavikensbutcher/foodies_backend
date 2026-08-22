@@ -9,7 +9,6 @@ import { getAuthUserId } from "../utils/auth.context";
 import { paginationSchema } from "../utils/pagination";
 import { RecipeListPage } from "../types/recipe";
 
-// ---------- Публічні GET-ендпоінти (BE-4 / BE-5) ----------
 
 export async function getRecipes(req: Request, res: Response) {
   const { category, ingredient, area, page, limit } = req.query;
@@ -39,7 +38,6 @@ export async function getPopularRecipes(_req: Request, res: Response) {
   res.json(recipes);
 }
 
-// ---------- Приватні ендпоінти ----------
 
 export const getOwnRecipes = async (req: AuthenticatedRequest, res: Response<RecipeListPage>) => {
   const currentUserId = getAuthUserId(req);
@@ -58,8 +56,6 @@ export const getFavoriteRecipes = async (
   res.json(await recipeService.getFavoriteRecipes(currentUserId, pagination));
 };
 
-// The client only needs to know the new state; returning the whole
-// favorites list on every toggle grows with the collection.
 export const favoriteRecipe = async (
   req: AuthenticatedRequest<{ recipeId: string }>,
   res: Response<{ recipeId: string; isFavorite: boolean }>,
