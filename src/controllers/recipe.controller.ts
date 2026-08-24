@@ -25,11 +25,11 @@ export async function getRecipes(req: Request, res: Response) {
 }
 
 export async function getRecipeById(
-  req: Request<{ id: string }>,
+  req: AuthenticatedRequest<{ id: string }>,
   res: Response,
 ) {
   const { id } = req.params;
-  const recipe = await recipeService.getRecipeById(id);
+  const recipe = await recipeService.getRecipeById(id, req.auth?.userId);
   res.json(recipe);
 }
 

@@ -94,8 +94,8 @@ export async function getRecipes(params: GetRecipesParams) {
   };
 }
 
-export async function getRecipeById(id: string) {
-  const recipe = await recipeRepository.findById(id);
+export async function getRecipeById(id: string, currentUserId?: string) {
+  const recipe = await recipeRepository.findById(id, currentUserId);
 
   if (!recipe) {
     throw new NotFoundError(ERROR_MESSAGES.RECIPE_NOT_FOUND);

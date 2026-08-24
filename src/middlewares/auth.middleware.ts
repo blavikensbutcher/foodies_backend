@@ -17,6 +17,49 @@ export interface AuthenticatedRequest<P = ParamsDictionary>
   auth?: AuthContext;
 }
 
+export async function optionalAuthenticate(
+  req: AuthenticatedRequest,
+  _res: Response,
+  next: NextFunction,
+) {
+  const authorization = req.headers.authorization;
+
+  if (!authorization?.startsWith("Bearer ")) {
+    next();
+    return;
+  }
+
+  const token = authorization.slice(7);
+
+  try {
+    const payload = jwt.verify(token, authConfig.jwtSecret) as AuthPayload;
+
+    if (!payload.sub || !payload.sid || payload.type !== "access") {
+      next();
+      return;
+    }
+
+    const session = await findSessionById(payload.sid);
+
+    if (
+      !session ||
+      session.userId !== payload.sub ||
+      session.expiresAt <= new Date()
+    ) {
+      next();
+      return;
+    }
+
+    req.auth = {
+      userId: payload.sub,
+      sessionId: payload.sid,
+    };
+  } catch {
+  }
+
+  next();
+}
+
 export async function authenticate(
   req: AuthenticatedRequest,
   res: Response,
