@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { APP_PATHS, RECIPE_PATHS } from "../constants/paths";
 import * as recipeController from "../controllers/recipe.controller";
-import { authenticate } from "../middlewares/auth.middleware";
+import { authenticate, optionalAuthenticate } from "../middlewares/auth.middleware";
 import { authorizeRecipeOwner } from "../middlewares/recipeOwner.middleware";
 import { validateUpdateRecipeBody } from "../middlewares/recipe.validate.middleware";
 import { uploadRecipeImage } from "../middlewares/upload.middleware";
@@ -238,6 +238,7 @@ router.get(
  */
 router.get(
   `${APP_PATHS.RECIPES}${RECIPE_PATHS.BY_ID}`,
+  asyncHandler(optionalAuthenticate),
   asyncHandler(recipeController.getRecipeById),
 );
 

@@ -46,17 +46,22 @@ const recipeListSelect = {
   owner: { select: { id: true, name: true, avatar: true } },
 } as const;
 
-const recipeDetailSelect = {
-  ...recipeListSelect,
-  instructions: true,
-  createdAt: true,
-  ingredients: {
-    select: {
-      measure: true,
-      ingredient: { select: { id: true, name: true, img: true } },
+const recipeDetailSelect = (currentUserId?: string) =>
+  ({
+    ...recipeListSelect,
+    instructions: true,
+    createdAt: true,
+    ingredients: {
+      select: {
+        measure: true,
+        ingredient: { select: { id: true, name: true, img: true } },
+      },
     },
-  },
-} as const;
+    favoredBy: {
+      where: { id: currentUserId ?? "" },
+      select: { id: true },
+    },
+  }) as const;
 
 interface RecipeListRow {
   id: string;
@@ -76,6 +81,7 @@ interface RecipeDetailRow extends RecipeListRow {
     measure: string | null;
     ingredient: { id: string; name: string; img: string | null };
   }[];
+  favoredBy: { id: string }[];
 }
 
 function buildWhere(filters: RecipeFilters) {
@@ -107,6 +113,7 @@ function toDetail(recipe: RecipeDetailRow) {
     ...toListItem(recipe),
     instructions: recipe.instructions,
     createdAt: recipe.createdAt,
+    isFavorite: recipe.favoredBy.length > 0,
     ingredients: recipe.ingredients.map((item) => ({
       id: item.ingredient.id,
       name: item.ingredient.name,
@@ -133,10 +140,10 @@ export async function findMany(filters: RecipeFilters, skip: number, take: numbe
   return { items: items.map(toListItem), total };
 }
 
-export async function findById(id: string) {
+export async function findById(id: string, currentUserId?: string) {
   const recipe = await prisma.recipe.findUnique({
     where: { id },
-    select: recipeDetailSelect,
+    select: recipeDetailSelect(currentUserId),
   });
 
   return recipe ? toDetail(recipe) : null;
