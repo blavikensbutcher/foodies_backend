@@ -3,7 +3,9 @@ import { Router } from "express";
 import * as userController from "../controllers/user.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 import { uploadAvatarImage } from "../middlewares/upload.middleware";
+import { validateParams } from "../middlewares/validate.middleware";
 import { asyncHandler } from "../utils/asyncHandler";
+import { UserParamsSchema } from "../utils/user.validation";
 
 const router = Router();
 
@@ -215,12 +217,19 @@ router.get(
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/UserCard'
+ *       400:
+ *         description: Invalid user id
  *       401:
  *         description: Unauthorized
  *       404:
  *         description: User not found
  */
-router.get("/users/:id", asyncHandler(authenticate), asyncHandler(userController.getUserById));
+router.get(
+  "/users/:id",
+  asyncHandler(authenticate),
+  validateParams(UserParamsSchema),
+  asyncHandler(userController.getUserById),
+);
 
 /**
  * @openapi
@@ -241,7 +250,7 @@ router.get("/users/:id", asyncHandler(authenticate), asyncHandler(userController
  *       204:
  *         description: Subscribed successfully
  *       400:
- *         description: Invalid request or cannot subscribe to yourself
+ *         description: Invalid user id or cannot subscribe to yourself
  *       401:
  *         description: Unauthorized
  *       404:
@@ -250,6 +259,7 @@ router.get("/users/:id", asyncHandler(authenticate), asyncHandler(userController
 router.post(
   "/users/:id/subscribe",
   asyncHandler(authenticate),
+  validateParams(UserParamsSchema),
   asyncHandler(userController.subscribeToUser),
 );
 
@@ -272,7 +282,7 @@ router.post(
  *       204:
  *         description: Unsubscribed successfully
  *       400:
- *         description: Invalid request or cannot unsubscribe from yourself
+ *         description: Invalid user id or cannot unsubscribe from yourself
  *       401:
  *         description: Unauthorized
  *       404:
@@ -281,6 +291,7 @@ router.post(
 router.delete(
   "/users/:id/subscribe",
   asyncHandler(authenticate),
+  validateParams(UserParamsSchema),
   asyncHandler(userController.unsubscribeFromUser),
 );
 
