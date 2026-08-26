@@ -9,4 +9,9 @@ export const updateAvatarSchema = z.object({
     .nullable(),
 });
 
+export const UserParamsSchema = z.object({
+  id: z.string().trim().min(1, "User id is required"),
+});
+
 export type UpdateAvatarInput = z.infer<typeof updateAvatarSchema>;
+export type UserParams = z.infer<typeof UserParamsSchema>;
