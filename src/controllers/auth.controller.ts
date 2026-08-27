@@ -54,3 +54,19 @@ export async function logout(
 
   res.status(204).send();
 }
+
+export async function forgotPassword(req: Request, res: Response) {
+  await authService.requestPasswordReset(req.body.email);
+
+  res.status(200).json({
+    message: "If this email is registered, a reset link has been sent",
+  });
+}
+
+export async function resetPassword(req: Request, res: Response) {
+  await authService.resetPassword(req.body.token, req.body.password);
+
+  res.status(200).json({
+    message: "Password has been reset successfully",
+  });
+}

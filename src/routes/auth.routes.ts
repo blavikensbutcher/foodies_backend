@@ -2,7 +2,12 @@ import { Router } from "express";
 
 import * as authController from "../controllers/auth.controller";
 import { authenticate } from "../middlewares/auth.middleware";
+import { validateBody } from "../middlewares/validate.middleware";
 import { asyncHandler } from "../utils/asyncHandler";
+import {
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from "../utils/auth.validation";
 
 const router = Router();
 
@@ -131,6 +136,74 @@ router.post(
   "/auth/logout",
   asyncHandler(authenticate),
   asyncHandler(authController.logout),
+);
+
+/**
+ * @openapi
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Request a password reset email
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: john@example.com
+ *     responses:
+ *       200:
+ *         description: Reset email sent if the account exists
+ *       400:
+ *         description: Invalid request data
+ */
+router.post(
+  "/auth/forgot-password",
+  validateBody(forgotPasswordSchema),
+  asyncHandler(authController.forgotPassword),
+);
+
+/**
+ * @openapi
+ * /auth/reset-password:
+ *   post:
+ *     summary: Reset password using a token from the reset email
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *               - password
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Token received in the password reset email
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: newPassword123
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *       400:
+ *         description: Invalid request data
+ *       401:
+ *         description: Invalid or expired reset token
+ */
+router.post(
+  "/auth/reset-password",
+  validateBody(resetPasswordSchema),
+  asyncHandler(authController.resetPassword),
 );
 
 export default router;

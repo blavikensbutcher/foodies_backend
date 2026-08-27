@@ -1,15 +1,26 @@
+import crypto from "crypto";
+
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { authConfig } from "../config/auth";
+import { config } from "../config/config";
 
 import {
+  createPasswordResetToken,
   createSession,
   deleteSession,
+  deleteUserSessions,
   findSessionById,
+  findValidPasswordResetToken,
+  markPasswordResetTokenUsed,
 } from "../repositories/auth.repository";
 
 import * as userRepository from "../repositories/user.repository";
+
+import { sendEmail } from "./email.service";
+import { passwordResetEmailTemplate } from "../templates/passwordReset.template";
+import { logger } from "../config/logger";
 
 import {
   ConflictError,
@@ -17,6 +28,11 @@ import {
 } from "../errors/AppError";
 
 const SALT_ROUNDS = 10;
+const PASSWORD_RESET_TOKEN_TTL_MINUTES = 60;
+
+function hashToken(token: string) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
 
 function createAccessToken(userId: string, sessionId: string) {
   return jwt.sign(
@@ -195,4 +211,52 @@ export async function refreshUserSession(
 
 export async function logoutUser(sessionId: string) {
   await deleteSession(sessionId);
+}
+
+export async function requestPasswordReset(email: string) {
+  const user = await userRepository.findByEmail(email);
+
+  if (!user) {
+    return;
+  }
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const tokenHash = hashToken(token);
+
+  await createPasswordResetToken({
+    userId: user.id,
+    tokenHash,
+    expiresAt: new Date(
+      Date.now() + PASSWORD_RESET_TOKEN_TTL_MINUTES * 60 * 1000
+    ),
+  });
+
+  const resetUrl = `${config.FRONTEND_URL}/reset-password?token=${token}`;
+
+  const { subject, text, html } = passwordResetEmailTemplate({
+    name: user.name,
+    resetUrl,
+    expiresInMinutes: PASSWORD_RESET_TOKEN_TTL_MINUTES,
+  });
+
+  try {
+    await sendEmail({ to: user.email, subject, text, html });
+  } catch (error) {
+    logger.error("Failed to send password reset email", { error, userId: user.id });
+  }
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+  const tokenHash = hashToken(token);
+  const resetToken = await findValidPasswordResetToken(tokenHash);
+
+  if (!resetToken) {
+    throw new UnauthorizedError("Invalid or expired reset token");
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+  await userRepository.updatePasswordHash(resetToken.userId, passwordHash);
+  await markPasswordResetTokenUsed(resetToken.id);
+  await deleteUserSessions(resetToken.userId);
 }

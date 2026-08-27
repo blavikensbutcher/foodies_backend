@@ -109,6 +109,14 @@ export function updateAvatar(id: string, avatar: string | null) {
   });
 }
 
+export function updatePasswordHash(id: string, passwordHash: string) {
+  return prisma.user.update({
+    where: { id },
+    data: { passwordHash },
+    select: { id: true },
+  });
+}
+
 export function findFollowers(userId: string) {
   return prisma.user
     .findUnique({
