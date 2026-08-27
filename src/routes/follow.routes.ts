@@ -2,7 +2,9 @@ import { Router } from "express";
 
 import * as followController from "../controllers/follow.controller";
 import { authenticate } from "../middlewares/auth.middleware";
+import { validateParams } from "../middlewares/validate.middleware";
 import { asyncHandler } from "../utils/asyncHandler";
+import { UserParamsSchema } from "../utils/user.validation";
 
 const router = Router();
 
@@ -31,7 +33,7 @@ const router = Router();
  *             schema:
  *               $ref: '#/components/schemas/UserListPage'
  *       400:
- *         description: Invalid pagination params
+ *         description: Invalid pagination params or user id
  *       401:
  *         description: Unauthorized
  *       404:
@@ -40,6 +42,7 @@ const router = Router();
 router.get(
   "/users/:id/followers",
   asyncHandler(authenticate),
+  validateParams(UserParamsSchema),
   asyncHandler(followController.getFollowers),
 );
 
@@ -68,7 +71,7 @@ router.get(
  *             schema:
  *               $ref: '#/components/schemas/UserListPage'
  *       400:
- *         description: Invalid pagination params
+ *         description: Invalid pagination params or user id
  *       401:
  *         description: Unauthorized
  *       404:
@@ -77,6 +80,7 @@ router.get(
 router.get(
   "/users/:id/following",
   asyncHandler(authenticate),
+  validateParams(UserParamsSchema),
   asyncHandler(followController.getFollowing),
 );
 
@@ -103,7 +107,7 @@ router.get(
  *             schema:
  *               $ref: '#/components/schemas/UserCard'
  *       400:
- *         description: Cannot follow yourself
+ *         description: Invalid user id or cannot follow yourself
  *       401:
  *         description: Unauthorized
  *       404:
@@ -130,7 +134,7 @@ router.get(
  *             schema:
  *               $ref: '#/components/schemas/UserCard'
  *       400:
- *         description: Cannot unfollow yourself
+ *         description: Invalid user id or cannot unfollow yourself
  *       401:
  *         description: Unauthorized
  *       404:
@@ -138,11 +142,17 @@ router.get(
  *       409:
  *         description: Not following this user
  */
-router.post("/users/:id/follow", asyncHandler(authenticate), asyncHandler(followController.follow));
+router.post(
+  "/users/:id/follow",
+  asyncHandler(authenticate),
+  validateParams(UserParamsSchema),
+  asyncHandler(followController.follow),
+);
 
 router.delete(
   "/users/:id/follow",
   asyncHandler(authenticate),
+  validateParams(UserParamsSchema),
   asyncHandler(followController.unfollow),
 );
 
