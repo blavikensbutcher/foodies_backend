@@ -35,20 +35,25 @@ export interface RecipeFilters {
   ingredientId?: string;
 }
 
-const recipeListSelect = {
-  id: true,
-  title: true,
-  mainImage: true,
-  time: true,
-  description: true,
-  category: { select: { name: true } },
-  area: { select: { name: true } },
-  owner: { select: { id: true, name: true, avatar: true } },
-} as const;
+const recipeListSelect = (currentUserId?: string) =>
+  ({
+    id: true,
+    title: true,
+    mainImage: true,
+    time: true,
+    description: true,
+    category: { select: { name: true } },
+    area: { select: { name: true } },
+    owner: { select: { id: true, name: true, avatar: true } },
+    favoredBy: {
+      where: { id: currentUserId ?? "" },
+      select: { id: true },
+    },
+  }) as const;
 
 const recipeDetailSelect = (currentUserId?: string) =>
   ({
-    ...recipeListSelect,
+    ...recipeListSelect(currentUserId),
     instructions: true,
     createdAt: true,
     ingredients: {
@@ -56,10 +61,6 @@ const recipeDetailSelect = (currentUserId?: string) =>
         measure: true,
         ingredient: { select: { id: true, name: true, img: true } },
       },
-    },
-    favoredBy: {
-      where: { id: currentUserId ?? "" },
-      select: { id: true },
     },
   }) as const;
 
@@ -72,6 +73,7 @@ interface RecipeListRow {
   category: { name: string };
   area: { name: string };
   owner: { id: string; name: string; avatar: string | null };
+  favoredBy: { id: string }[];
 }
 
 interface RecipeDetailRow extends RecipeListRow {
@@ -105,6 +107,7 @@ function toListItem(recipe: RecipeListRow) {
     category: recipe.category.name,
     area: recipe.area.name,
     owner: recipe.owner,
+    isFavorite: recipe.favoredBy.length > 0,
   };
 }
 
@@ -123,13 +126,18 @@ function toDetail(recipe: RecipeDetailRow) {
   };
 }
 
-export async function findMany(filters: RecipeFilters, skip: number, take: number) {
+export async function findMany(
+  filters: RecipeFilters,
+  skip: number,
+  take: number,
+  currentUserId?: string,
+) {
   const where = buildWhere(filters);
 
   const [items, total] = await Promise.all([
     prisma.recipe.findMany({
       where,
-      select: recipeListSelect,
+      select: recipeListSelect(currentUserId),
       skip,
       take,
       orderBy: { createdAt: "desc" },
@@ -150,9 +158,9 @@ export async function findById(id: string, currentUserId?: string) {
 }
 
 
-export async function findPopular(take: number) {
+export async function findPopular(take: number, currentUserId?: string) {
   const recipes = await prisma.recipe.findMany({
-    select: recipeListSelect,
+    select: recipeListSelect(currentUserId),
     take,
     orderBy: { favoredBy: { _count: "desc" } },
   });

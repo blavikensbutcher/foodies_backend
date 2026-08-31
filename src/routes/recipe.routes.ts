@@ -201,7 +201,11 @@ router.delete(
  *       200:
  *         description: Paginated list of recipes
  */
-router.get(APP_PATHS.RECIPES, asyncHandler(recipeController.getRecipes));
+router.get(
+  APP_PATHS.RECIPES,
+  asyncHandler(optionalAuthenticate),
+  asyncHandler(recipeController.getRecipes),
+);
 
 /**
  * @openapi
@@ -215,6 +219,7 @@ router.get(APP_PATHS.RECIPES, asyncHandler(recipeController.getRecipes));
  */
 router.get(
   `${APP_PATHS.RECIPES}/popular`,
+  asyncHandler(optionalAuthenticate),
   asyncHandler(recipeController.getPopularRecipes),
 );
 

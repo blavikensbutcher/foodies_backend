@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 
 import { AuthenticatedRequest } from "../middlewares/auth.middleware";
 import * as recipeService from "../services/recipe.service";
@@ -10,16 +10,19 @@ import { paginationSchema } from "../utils/pagination";
 import { RecipeListPage } from "../types/recipe";
 
 
-export async function getRecipes(req: Request, res: Response) {
+export async function getRecipes(req: AuthenticatedRequest, res: Response) {
   const { category, ingredient, area, page, limit } = req.query;
 
-  const result = await recipeService.getRecipes({
-    category: typeof category === "string" ? category : undefined,
-    ingredient: typeof ingredient === "string" ? ingredient : undefined,
-    area: typeof area === "string" ? area : undefined,
-    page: page ? Number(page) : undefined,
-    limit: limit ? Number(limit) : undefined,
-  });
+  const result = await recipeService.getRecipes(
+    {
+      category: typeof category === "string" ? category : undefined,
+      ingredient: typeof ingredient === "string" ? ingredient : undefined,
+      area: typeof area === "string" ? area : undefined,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+    },
+    req.auth?.userId,
+  );
 
   res.json(result);
 }
@@ -33,8 +36,8 @@ export async function getRecipeById(
   res.json(recipe);
 }
 
-export async function getPopularRecipes(_req: Request, res: Response) {
-  const recipes = await recipeService.getPopularRecipes();
+export async function getPopularRecipes(req: AuthenticatedRequest, res: Response) {
+  const recipes = await recipeService.getPopularRecipes(req.auth?.userId);
   res.json(recipes);
 }
 

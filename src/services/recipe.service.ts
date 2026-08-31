@@ -70,7 +70,7 @@ export interface GetRecipesParams {
 const DEFAULT_LIMIT = 12;
 const POPULAR_LIMIT = 4;
 
-export async function getRecipes(params: GetRecipesParams) {
+export async function getRecipes(params: GetRecipesParams, currentUserId?: string) {
   const page = params.page && params.page > 0 ? params.page : 1;
   const limit = params.limit && params.limit > 0 ? params.limit : DEFAULT_LIMIT;
   const skip = (page - 1) * limit;
@@ -83,6 +83,7 @@ export async function getRecipes(params: GetRecipesParams) {
     },
     skip,
     limit,
+    currentUserId,
   );
 
   return {
@@ -104,8 +105,8 @@ export async function getRecipeById(id: string, currentUserId?: string) {
   return recipe;
 }
 
-export function getPopularRecipes() {
-  return recipeRepository.findPopular(POPULAR_LIMIT);
+export function getPopularRecipes(currentUserId?: string) {
+  return recipeRepository.findPopular(POPULAR_LIMIT, currentUserId);
 }
 
 
